@@ -1,0 +1,11 @@
+a_dictionary:
+  a_key: a_value
+  another_key: another_value
+  nested_dictionary:
+    nested_key: nested_value
+a_list:
+- an item
+- another item
+- 1.25
+- a_key: a_value
+asdasdasd: '123123123'
