@@ -10,6 +10,7 @@ from arc.core.driver.driver_capabilities import (
     create_chrome_options
 )
 from arc.core.driver.driver_manager import DriverManager
+from arc.settings import settings
 
 
 class DriverTypes:
@@ -84,8 +85,10 @@ class DriverTypes:
     def chrome(self, capabilities):
         chrome_driver = self.base_config.config.get('Driver', 'chrome_driver_path')
         self.logger.debug(f"Chrome driver path: {chrome_driver}")
+        # TODO: ver si funciona en windows
+        chrome_path = os.path.join(settings.DRIVERS_HOME, chrome_driver)
         return webdriver.Chrome(
-            chrome_driver,
+            chrome_path,
             chrome_options=create_chrome_options(self.base_config),
             desired_capabilities=capabilities
         )
