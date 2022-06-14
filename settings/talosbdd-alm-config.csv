@@ -1,5 +1,5 @@
 feature-file;scenario;alm-server;alm-user;alm-password;alm-domain;alm-project;tc-path;tc-name;tc-descrip;tc-application;tc-aff-channels;tc-design-state;tc-func-serv;tc-test-type;tc-difficulty;ts-path;ts-name;ts-descrip;ts-ext-dev;ts-proj-code;ts-proj-type;ts-environment;ts-cycle;ts-client;ts-appl-v-r;ts-func-pack
-;;http://alm1.produban.gs.corp/qcbin;user;pass;ISB_SW_COMPONENTS;PRUEBA_REQ;TalosBDD/test;;;UPL;Todo Canal;Finalizado;Aplicación Completa;End-To-End;Alta;;;;No;99999;Proyecto Evolutivo;CER;1;Santander US;V01R00F000;Aplicación Completa
+;;http://alm1.produban.gs.corp/qcbin;user;pass;ISB_SW_COMPONENTS;PRUEBA_REQ;TalosBDD/test;;;UPL;Todo Canal;Finalizado;AplicaciÃ³n Completa;End-To-End;Alta;;;;No;99999;Proyecto Evolutivo;CER;1;Santander US;V01R00F000;AplicaciÃ³n Completa
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 test;;;;hola;;;;;;;;;;;;;;;;;;;;;;
 test2;;;;adios;;;;;;;;;;;;;;;;;;;;;;
