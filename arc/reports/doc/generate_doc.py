@@ -117,7 +117,7 @@ class GenerateDoc:
 
         # reformat template.docx's extension
         os.rename(TEMP_DOCX, TEMP_ZIP)
-
+        print(TEMP_ZIP)
         # unzip file zip to specific folder
         with zipfile.ZipFile(TEMP_ZIP, 'r') as z:
             z.extractall(TEMP_FOLDER)

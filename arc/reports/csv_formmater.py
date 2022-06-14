@@ -30,7 +30,7 @@ class CSVFormatter:
     @staticmethod
     def get_csv_data():
         results = []
-        with open(EXCEL_HOME) as File:
+        with open(EXCEL_HOME, encoding='utf-8') as File:
             reader = csv.reader(File, delimiter=';', quotechar=',',
                                 quoting=csv.QUOTE_MINIMAL)
             for row in reader:
