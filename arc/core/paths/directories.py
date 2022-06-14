@@ -23,7 +23,7 @@ def generate_needed_dir(current_driver):
             dir_reports_html = os.path.join(dir_reports, 'html')
             dir_reports_doc = os.path.join(dir_reports, 'doc')
 
-            if not os.path.isabs(OUTPUT_BASEDIR):
+            if not os.path.isdir(OUTPUT_BASEDIR):
                 os.mkdir(OUTPUT_BASEDIR)
             if not os.path.isdir(dir_json):
                 os.mkdir(dir_json)
@@ -72,7 +72,8 @@ def generate_needed_dir(current_driver):
                 dir_helpers_api_objects = os.path.join(pytalos_settings.TEST_PATH, 'helpers/api_objects')
                 if not os.path.isdir(dir_helpers_api_objects):
                     os.mkdir(dir_helpers_api_objects)
-    except (Exception,):
+    except (Exception,) as ex:
+        print(ex)
         pass
 
 
