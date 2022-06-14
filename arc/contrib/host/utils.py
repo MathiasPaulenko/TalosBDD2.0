@@ -2,9 +2,12 @@ import os
 from datetime import datetime
 from time import sleep
 
-import win32con
-import win32gui
-import win32ui
+try:
+    import win32con
+    import win32gui
+    import win32ui
+except (ModuleNotFoundError,):
+    pass
 
 from settings import settings
 
