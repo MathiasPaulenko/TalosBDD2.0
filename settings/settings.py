@@ -11,7 +11,7 @@ OUTPUT_PATH = os.path.join(BASE_PATH, 'output')
 PYTALOS_GENERAL = {
     'download_path': "path",
     'auto_generate_output_dir': True,
-    'auto_generate_test_dir': False
+    'auto_generate_test_dir': True
 }
 
 # Run configuration
@@ -82,7 +82,7 @@ PYTALOS_JIRA = {
 # BEHAVE configuration
 BEHAVE = {
     'color': True,
-    'junit': False,
+    'junit': True,
     'junit_directory': 'output/reports/html',
     'default_format': 'pretty',
     'format': [
@@ -125,8 +125,7 @@ BEHAVE = {
     'show_source': True,
     'show_timings': True,
     'verbose': False,
-    'more_formatters': {},
-    'userdata': {}
+
 }
 
 """ BD Configurations"""
