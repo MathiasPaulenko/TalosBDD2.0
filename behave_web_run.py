@@ -8,6 +8,5 @@ if sys.argv[1:]:
 else:
     runner.main(make_behave_argv(
         conf_properties='local',
-        tags=['san_web'],
-        allure=True
+        tags=['san_web1']
     ))
