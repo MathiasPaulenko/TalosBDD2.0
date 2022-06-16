@@ -157,7 +157,8 @@ class DriverWrapper(object):
 
         self.update_visual_baseline()
         self.utils.discard_logcat_logs()
-        self.utils.set_implicitly_wait()
+        if self.config.get('Driver', 'type') != 'ios':
+            self.utils.set_implicitly_wait()
 
         return self.driver
 

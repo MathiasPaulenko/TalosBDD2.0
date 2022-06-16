@@ -7,6 +7,6 @@ if sys.argv[1:]:
     runner.main(' '.join(sys.argv[1:]))
 else:
     runner.main(make_behave_argv(
-        conf_properties='api',
+        conf_properties='saucelab',
         tags=['pokemon'],
     ))

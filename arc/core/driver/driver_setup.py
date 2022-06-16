@@ -64,7 +64,7 @@ class SetupDriver(object):
                               'windows_8': constants.W8,
                               'windows_10': constants.W10,
                               'linux': constants.LINUX,
-                              'android': constants.ANDROID,
+                              'android': constants.ANDROID.upper(),
                               'mac': constants.MAC}
             capabilities['platform'] = platforms_list.get(driver.split('-')[3], driver.split('-')[3])
         except IndexError:
