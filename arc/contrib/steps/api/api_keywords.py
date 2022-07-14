@@ -83,8 +83,10 @@ configure the proxies with key path {key_path} in file {file_name}
 configure the proxies request
 ######################################################################################################################
 """
-
+import operator
 from array import array
+from functools import reduce
+
 from behave import use_step_matcher, step
 
 from arc.contrib.tools import files
@@ -240,13 +242,13 @@ def prepare_headers_data_table(context):
     You can also use values with {{variable}} to reference a json / yaml key from the profiles datas
 
     :example
-       When prepare data headers request in master file
+       When prepare the headers request
           | key      | value      |
           | headers1 | valor1     |
           | headers2 | {{valor2}} |
 
 
-        And prepare data headers request in master file
+        And prepare the headers request
           | key           | value             |
           | Authorization | {{Token_JWT}}     |
           | Content-Type  | application/json  |
@@ -845,6 +847,31 @@ def prepare_data_with_data_table(context):
     context.test_request_payloads = dict_datas
 
 
+#: TODO: terminar este step
+@step(u"prepare the data payload form request")
+def prepare_data_payload_string(context):
+    """
+    With this step the body payload is prepared by passing it a string from a form in a data table whose
+    header must be "value"
+    :example
+        given prepare the data payload form request
+        |   value           |
+        |   a_form_string   |
+    :
+    :tag API Prepare Request Steps:
+    :param context:
+    :return context.test_request_payloads:
+    """
+    payload = ''
+    if context.table:
+        for row in context.table:
+            payload = row['value']
+
+    context.api.prepare_request(data=payload)
+    context.func.add_formatter_evidence_json({'value': payload}, "Prepared data payload")
+    context.test_request_payloads = {'value': payload}
+
+
 @step(u"prepare the multiple files request")
 def prepare_multiple_files(context):
     """
@@ -1069,6 +1096,117 @@ def verify_schema_key_path_file_path(context, key_path, file_path):
 
     expected_schema = files.get_json_value_key_path(key_path, file_path)
     context.api.validate_json_schema(expected_schema, input_type="json")
+
+
+@step(u"remove the '(?P<value>.+)' value from the request params")
+def remove_value_from_param(context, value):
+    """
+    This step removes a parameter from the request params already set earlier.
+    The key of the params that you want to delete is passed as a parameter.
+    :example
+        When remove the 'param1' value from the request params
+    :
+    :param context:
+    :param value:
+    :return:
+    """
+    evidence_dict = {
+        "headers deleted": {
+            "key": value,
+            "value": context.api.params[value]
+        }
+    }
+    del context.api.params[value]
+    context.func.add_formatter_evidence_json(evidence_dict, "delete param value")
+
+
+@step(u"remove the '(?P<value>.+)' value from the request headers")
+def remove_value_from_headers(context, value):
+    """
+    This step removes a parameter from the request header already set earlier.
+    The key of the header that you want to delete is passed as a parameter.
+    :example
+        When remove the 'Authorization' value from the request headers
+    :
+    :param context:
+    :param value:
+    :return:
+    """
+    evidence_dict = {
+        "headers deleted": {
+            "key": value,
+            "value": context.api.headers[value]
+        }
+    }
+
+    del context.api.headers[value]
+
+    context.func.add_formatter_evidence_json(evidence_dict, "delete header value")
+
+
+@step(u"remove the value with key path '(?P<key_path>.+)' from the request body")
+def remove_value_from_body(context, key_path):
+    """
+    This step removes a key from the request body already set earlier from a key path.
+    The key of the body that you want to delete is passed as a parameter,
+    you can pass a key path dot separated as well.
+    :example
+         When remove the value with key path 'items.properties' from the request body
+
+         When remove the value with key path 'items' from the request body
+
+    :
+    :param context:
+    :param key_path:
+    :return:
+    """
+    *path, key = key_path.split('.')
+
+    evidence_dict = {
+        "body deleted": {
+            "key": str(key),
+            "value": str(path)
+        }
+    }
+
+    reduction = reduce(operator.getitem, path, context.api.body)
+    if isinstance(reduction, list):
+        for item in reduction:
+            del item[key]
+    else:
+        del reduction[key]
+    context.func.add_formatter_evidence_json(evidence_dict, "delete body value")
+
+
+@step(u"change the value with key path '(?P<key_path>.+)' to null from the request body")
+def change_value_from_body(context, key_path):
+    """
+    This step changes a key from the request body already set earlier from a key path.
+    The key of the body that you want to delete is passed as a parameter,
+    you can pass a key path dot separated as well.
+    :example
+         When change the value with key path 'items.properties' to null from the request body
+
+    :
+    :param context:
+    :param key_path:
+    :return:
+    """
+    *path, key = key_path.split('.')
+
+    evidence_dict = {
+        "body deleted": {
+            "key": str(key),
+            "value": str(path),
+        }
+    }
+    reduction = reduce(operator.getitem, path, context.api.body)
+    if isinstance(reduction, list):
+        for item in reduction:
+            item[key] = None
+    else:
+        reduction[key] = None
+    context.func.add_formatter_evidence_json(evidence_dict, "change body value")
 
 
 @step(u"validate response schema with key path and file name in table")
@@ -1619,7 +1757,7 @@ def create_oauth1_authorization(context):
         user_oauth_token = context.func.get_formatter_multiple_re_var(user_oauth_token, context.master_file_name_config)
     if context.func.is_contains_profile_re_var(user_oauth_token_secret):
         user_oauth_token_secret = context.func.get_formatter_multiple_re_var(user_oauth_token_secret,
-                                                                         context.master_file_name_config)
+                                                                             context.master_file_name_config)
 
     context.test_oauth1_auth = context.api.create_oauth1(app_key,
                                                          app_secret,

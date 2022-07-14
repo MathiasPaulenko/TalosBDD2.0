@@ -4,8 +4,8 @@ from behave import use_step_matcher, step
 from selenium.webdriver.common.by import By
 
 from arc.page_elements import Button, Text, Link
-from test.helpers.pageobjects.examples.san_web_demo.po_san import SanPageObject
-from test.helpers.pageobjects.examples.san_web_demo.po_menu import MenuPageObject
+from test.helpers.page_objects.examples.san_web_demo.po_san import SanPageObject
+from test.helpers.page_objects.examples.san_web_demo.po_menu import MenuPageObject
 
 use_step_matcher("re")
 
@@ -19,7 +19,7 @@ def test(context, url):
 @step("accept all cookies")
 def test(context):
     try:
-        btn__accept_cookies = Button(By.ID, 'consent_prompt_submit')
+        btn__accept_cookies = Button(By.ID, 'privacy_pref_optin')
         btn__accept_cookies.wait_until_visible()
         btn__accept_cookies.click()
     except (Exception,):

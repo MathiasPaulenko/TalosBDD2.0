@@ -20,6 +20,8 @@ def get_driver_capabilities(driver_name):
         return DesiredCapabilities.OPERA.copy()
     elif driver_name == constants.IEXPLORE:
         return DesiredCapabilities.INTERNETEXPLORER.copy()
+    elif driver_name == constants.EDGEIE:
+        return DesiredCapabilities.INTERNETEXPLORER.copy()
     elif driver_name == constants.EDGE:
         return DesiredCapabilities.EDGE.copy()
     elif driver_name == constants.PHANTOMJS:

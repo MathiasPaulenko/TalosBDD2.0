@@ -1,7 +1,7 @@
 selenium==4.1.5
 junit2html==30.1.3
 requests==2.27.1
-records==0.5.3
+records==0.5.2
 behave==1.2.6
 behave-pytest==0.1.1
 pytest==2.9.2
@@ -20,3 +20,5 @@ allure-behave==2.9.45
 Pillow==9.1.1
 screeninfo==0.8
 pandas==1.4.2
+openpyxl==3.0.9
+webdriver-manager==3.8.0

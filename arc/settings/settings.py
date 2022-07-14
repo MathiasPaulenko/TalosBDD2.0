@@ -9,8 +9,8 @@ TEST_PATH = os.path.join(BASE_PATH, 'test')
 REPORTS_PATH = os.path.join(OUTPUT_PATH, 'reports')
 DRIVERS_HOME = os.path.join(SETTINGS_PATH, 'drivers')
 
-VS_MIDDLEWARE = 'pytalos/resources/talos-pcom.vbs'
-
+# Resources
+VS_MIDDLEWARE = 'arc/resources/talos-pcom.vbs'
 
 """ Behave configurations """
 # BEHAVE configuration

@@ -19,8 +19,9 @@ from arc.core.behave.env_utils import (
     run_hooks,
     enable_json_report,
     enable_doc_report,
-    enable_host, close_host, generate_html_reports, set_doc_info_and_end, set_doc_note,
-    set_alm_custom_variable, generate_screenshot
+    enable_host, close_host, set_doc_info_and_end, set_doc_note,
+    set_alm_custom_variable, generate_screenshot, set_initial_scenario_data, set_initial_feature_data,
+    add_scenario_data, add_feature_data, set_initial_step_data, add_step_data, generate_simple_html_reports
 )
 from arc.core.behave.environment import (
     before_all as core_before_all,
@@ -70,6 +71,7 @@ def before_all(context):
 def before_feature(context, feature):
     # core task
     core_before_feature(context, feature)
+    set_initial_feature_data(context, feature)
 
     # add log txt info
     if settings.PYTALOS_REPORTS['generate_txt']:
@@ -84,6 +86,7 @@ def before_feature(context, feature):
 def before_scenario(context, scenario):
     # core task
     core_before_scenario(context, scenario)
+    set_initial_scenario_data(scenario)
 
     # set core context functionalities
     context.runtime.scenario = scenario
@@ -112,6 +115,7 @@ def before_scenario(context, scenario):
 def after_scenario(context, scenario):
     # core task
     core_after_scenario(context, scenario)
+    add_scenario_data(scenario)
 
     # reporting actions
     doc_path = set_doc_info_and_end(context, scenario)
@@ -142,6 +146,8 @@ def after_feature(context, feature):
     if settings.PYTALOS_REPORTS['generate_txt']:
         context.runtime.txt_log.write_after_feature_info(feature)
 
+    add_feature_data(feature)
+
     # run hooks
     run_hooks(context, 'after_feature')
 
@@ -153,7 +159,7 @@ def after_all(context):
     core_after_all(context)
 
     # reporting actions
-    generate_html_reports(settings.PYTALOS_REPORTS['generate_html'])
+    generate_simple_html_reports(settings.PYTALOS_REPORTS['generate_simple_html'])
     run_alm_connect()
 
     if settings.PYTALOS_REPORTS['generate_txt']:
@@ -190,6 +196,7 @@ def before_step(context, step):
     context.api_evidence_manual_extra_json = []
     context.api_evidence_request_body = []
     context.api_evidence_verify = []
+    set_initial_step_data(step)
 
     # run hooks
     run_hooks(context, 'before_step')
@@ -202,6 +209,7 @@ def after_step(context, step):
 
     if settings.PYTALOS_ALM['generate_json']:
         context.runtime.alm_json.generate_json_after_step(step)
+    add_step_data(context, step, screenshot_path)
 
     # run hooks
     run_hooks(context, 'after_step')

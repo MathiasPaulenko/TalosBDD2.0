@@ -17,13 +17,13 @@ class Func:
         exec_type = self.context.pytalos_config.get('Driver', 'type')
         if capture_name is not None and text is not None:
             self.context.extra_info_dict.append(text)
-            if exec_type != "api":
+            if exec_type not in ['api', 'backend', 'service']:
                 utils = Utils()
                 path = utils.capture_screenshot(str(capture_name))
                 self.context.extra_info_dict.append(path)
 
         elif capture_name is not None:
-            if exec_type != "api":
+            if exec_type not in ['api', 'backend', 'service']:
                 utils = Utils()
                 path = utils.capture_screenshot(str(capture_name))
                 self.context.extra_info_dict.append(path)

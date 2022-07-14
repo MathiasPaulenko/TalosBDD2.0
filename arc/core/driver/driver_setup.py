@@ -16,6 +16,7 @@ from arc.core.driver.driver_capabilities import (
 )
 from arc.core.driver.driver_types import DriverTypes
 from arc.contrib.utilities import get_message_exception
+from settings import settings
 
 
 class SetupDriver(object):
@@ -105,6 +106,7 @@ class SetupDriver(object):
                 'safari': self.driver_types.safari,
                 'opera': self.driver_types.opera,
                 'iexplore': self.driver_types.explorer,
+                'edgeie': self.driver_types.edgeie,
                 'edge': self.driver_types.edge,
                 'phantomjs': self.driver_types.phantomjs
             }
@@ -118,16 +120,14 @@ class SetupDriver(object):
             add_driver_capabilities(capabilities, 'Capabilities', self.base_config)
 
             try:
-                if self.base_config.config.getboolean_optional('Driver', 'proxy'):
-                    proxy_url = "http://proxyapps.gsnet.corp:80"
+                if settings.PYTALOS_RUN['execution_proxy']['enabled']:
                     proxy = Proxy()
                     proxy.proxy_type = ProxyType.MANUAL
-                    proxy.http_proxy = proxy_url
-                    proxy.ssl_proxy = proxy_url
+                    proxy.http_proxy = settings.PYTALOS_RUN['execution_proxy']['proxy']['http_proxy']
+                    proxy.ssl_proxy = settings.PYTALOS_RUN['execution_proxy']['proxy']['https_proxy']
                     proxy.add_to_capabilities(capabilities)
-
-            except (Exception,):
-                pass
+            except (Exception,) as ex:
+                print(ex)
 
             driver = driver_setup_method(capabilities)
 

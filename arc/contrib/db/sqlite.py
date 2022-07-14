@@ -24,7 +24,7 @@ class TestSQLiteDatabase(records.Database):
 
 
 def sqlite_db():
-    if settings.SQLITE['enable']:
+    if settings.SQLITE['enabled']:
         logger = logging.getLogger(__name__)
         try:
             connection: Connection = sqlite3.connect(settings.SQLITE['sqlite_home'])

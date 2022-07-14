@@ -7,8 +7,13 @@ from behave.capture import CaptureController
 from behave.runner import ModelRunner, Runner
 from behave.runner_util import PathManager
 
-from arc.core.behave.configuration import BehaveConfiguration
+from arc.core.behave.configuration import BehaveConfiguration, set_report_configuration
 from arc.misc import title
+from arc.core import constants
+try:
+    from settings import settings
+except (Exception,):
+    from arc.settings import settings
 
 
 class CustomModelRunner(ModelRunner):
@@ -72,15 +77,6 @@ class CustomRunner(CustomModelRunner, Runner):
         self.base_dir = None
 
 
-def main(args=None):
-    config = BehaveConfiguration(args)
-    print('Started at:', datetime.datetime.now())
-    title()
-    finish_code = run_behave(config, CustomRunner)
-    print('Ended at:', datetime.datetime.now())
-    return finish_code
-
-
 def make_behave_argv(verbose: bool = False, junit: bool = False, format_pretty: bool = False,
                      formatter: str = None, output: str = None, tags: [str, list] = None, conf_properties: str = None,
                      features_dir: str = None, allure: bool = False, teamcity: bool = False, **kwargs):
@@ -113,3 +109,19 @@ def make_behave_argv(verbose: bool = False, junit: bool = False, format_pretty: 
         params = params + " -f behave_teamcity:TeamcityFormatter -o output/info/teamcity"
 
     return params
+
+
+def add_extra_args(args):
+    args += constants.BEHAVE_ARGS['TALOS_JSON_REPORT']
+    return args
+
+
+def main(args=None):
+    set_report_configuration(settings)
+    args = add_extra_args(args)
+    config = BehaveConfiguration(command_args=args, run_settings=settings)
+    print('Started at:', datetime.datetime.now())
+    title()
+    finish_code = run_behave(config, CustomRunner)
+    print('Ended at:', datetime.datetime.now())
+    return finish_code

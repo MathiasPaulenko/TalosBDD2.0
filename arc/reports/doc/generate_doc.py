@@ -79,7 +79,7 @@ class GenerateDoc:
         step_dict["Capture"] = path
         step_dict["Add_note"] = self.add_note
         step_dict["Extra_info_list"] = extra_info_list
-        if str(self.drive_type).lower() == "api" or "no_driver" in self.scenario.tags:
+        if str(self.drive_type).lower() in ['api', 'backend', 'service'] or "no_driver" in self.scenario.tags:
             step_dict["Api_Evidence_info"] = api_evidence_info
             step_dict["Api_Evidence_response"] = api_evidence_response
             step_dict["Api_Evidence_headers"] = api_evidence_headers
@@ -438,7 +438,7 @@ class GenerateDoc:
                     self.document.add_picture(step.get('Capture'), width=Inches(3.0))
                     last_paragraph = self.document.paragraphs[-1]
                     last_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-                elif str(self.drive_type).lower() == "api":
+                elif str(self.drive_type).lower() in ['api', 'backend', 'service']:
                     pass
                 else:
                     self.document.add_picture(step.get('Capture'), width=Inches(6.5))
@@ -447,7 +447,7 @@ class GenerateDoc:
             except FileNotFoundError:
                 self.document.add_paragraph('')
 
-            if str(self.drive_type).lower() == "api" or "no_driver" in self.scenario.tags:
+            if str(self.drive_type).lower() in ['api', 'backend', 'service'] or "no_driver" in self.scenario.tags:
                 self.add_api_evidence_body(step)
 
             self.document.add_paragraph('')

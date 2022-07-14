@@ -124,7 +124,9 @@ class DriverWrapper(object):
             self.configure_visual_baseline()
 
     def connect(self, maximize=True):
-        if not self.config.get('Driver', 'type') or self.config.get('Driver', 'type') in ['api', 'no_driver', 'host']:
+        if not self.config.get('Driver', 'type') or self.config.get('Driver', 'type') in [
+            'backend', 'no_driver', 'host', 'service', 'api'
+        ]:
             return None
 
         self.driver = SetupDriver(self.config, self.utils).create_driver()

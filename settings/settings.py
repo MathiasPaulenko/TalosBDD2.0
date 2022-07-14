@@ -7,27 +7,45 @@ BASE_PATH = Path(__file__).absolute().parent.parent
 SETTINGS_PATH = os.path.join(BASE_PATH, 'settings')
 OUTPUT_PATH = os.path.join(BASE_PATH, 'output')
 
+# Proxy configuration
+PROXY = {
+    'http_proxy': '',
+    'https_proxy': ''
+}
+
 # Project and general configuration
 PYTALOS_GENERAL = {
     'download_path': "path",
     'auto_generate_output_dir': True,
-    'auto_generate_test_dir': True
+    'auto_generate_test_dir': True,
+    'update_driver': {
+        'enabled_update': False,
+        'enable_proxy': False,
+        'proxy': PROXY
+    }
 }
 
 # Run configuration
 PYTALOS_RUN = {
     'delete_old_reports': True,
     'close_webdriver': True,
+    'close_host': True,
     'continue_after_failed_step': False,
-    'close_host': True
+    'execution_proxy': {
+        'enabled': False,
+        'proxy': PROXY
+    },
+
 }
 
 # Reports configurations
 PYTALOS_REPORTS = {
     'generate_html': True,
+    'generate_simple_html': True,
     'generate_docx': True,
     'generate_txt': True,
     'generate_screenshot': True,
+    'generate_extra_reports': True,
 
 }
 
@@ -83,22 +101,7 @@ PYTALOS_JIRA = {
 BEHAVE = {
     'color': True,
     'junit': True,
-    'junit_directory': 'output/reports/html',
     'default_format': 'pretty',
-    'format': [
-        'pretty',
-        'plain',
-        'progress3',
-        'json.pretty',
-        'json',
-        'rerun',
-        'sphinx.steps',
-        'steps',
-        'steps.doc',
-        'steps.usage',
-        'tags',
-        'tags.location',
-    ],
     'show_skipped': False,
     'show_multiline': True,
     'stdout_capture': False,
@@ -107,21 +110,6 @@ BEHAVE = {
     'logging_level': 'INFO',
     'logging_clear_handlers': True,
     'summary': True,
-    'outfiles': [
-        'output/logs/features_pretty.txt',
-        'output/logs/features_plain.txt',
-        'output/logs/features_progress.txt',
-        'output/reports/report_json_pretty.json',
-        'output/reports/report_json.json',
-        'output/reports/scenario_failed.txt',
-        'output/info/steps_rst',
-        'output/info/steps_list.txt',
-        'output/info/steps_definition.txt',
-        'output/info/steps_usage.txt',
-        'output/info/tags_usage.txt',
-        'output/info/tags_location.txt',
-
-    ],
     'show_source': True,
     'show_timings': True,
     'verbose': False,
@@ -131,10 +119,9 @@ BEHAVE = {
 """ BD Configurations"""
 # SQLite configuration
 SQLITE = {
-    'enable': False,
+    'enabled': False,
     'sqlite_home': os.path.join(BASE_PATH, 'db.sqlite3')
 }
-
 
 # Behave init file path configuration
 # BEHAVE_INIT_PATH = os.path.join(BASE_PATH, 'settings') + os.sep

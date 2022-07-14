@@ -1,6 +1,7 @@
 import os
 import re
 import pandas as pd
+import json
 
 OPENPYXL_ENGINE = 'openpyxl'
 dirname = os.path.dirname
@@ -14,6 +15,7 @@ class ExcelWrapper:
         """
         self.engine = OPENPYXL_ENGINE
         if route_filename is not None:
+            route_filename = route_filename.replace(os.sep, '/')
             splitted = route_filename.rsplit('/', 1)
 
             self.route = os.path.join(ROOT_PATH, splitted[0] + '/') if len(splitted) > 1 else ROOT_PATH + '/'
@@ -59,11 +61,23 @@ class ExcelWrapper:
         self.sheets[sheet_name] = sheet
         self.headers[sheet_name] = sheet.head()
 
+    def set_all_sheets_header(self, header):
+        for current_sheet in self.file.sheet_names:
+            self.set_sheet_header(header, sheet_name=current_sheet)
+
     def current_sheet_to_json(self):
         """
             Return a json object of the current sheet  .
         """
         return self.sheets[self.current_sheet].to_json()
+
+    def current_sheet_to_dict(self):
+        """
+            Return a dict object of the current sheet  .
+        """
+        str_json = self.current_sheet_to_json()
+        json_dict = json.loads(str_json)
+        return json_dict
 
     def all_sheets_to_json(self):
         """
@@ -72,6 +86,17 @@ class ExcelWrapper:
         sheets = {}
         for sheet_name, sheet in self.sheets.items():
             sheets[sheet_name] = sheet.to_json()
+        return sheets
+
+    def all_sheets_to_dict(self):
+        """
+            Return a dict objects with all the sheets.
+        """
+        sheets = {}
+        for sheet_name, sheet in self.sheets.items():
+            str_json = sheet.to_json()
+            json_dict = json.loads(str_json)
+            sheets[sheet_name] = json_dict
         return sheets
 
     def __read_cell(self, row_from_zero, column_from_zero, sheet_name=None):

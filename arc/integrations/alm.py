@@ -21,7 +21,7 @@ def alm3_properties(flag):
 
 def run_alm_connect():
     if settings.PYTALOS_ALM['post_to_alm']:
-        jar_path = 'pytalos/resources/'
+        jar_path = 'arc/resources/'
         json_path = 'output/json/'
         alm3_properties(settings.PYTALOS_ALM['alm3_properties'])
         call(['java', '-jar', jar_path + 'talos-alm-connect-5.01.jar', json_path])

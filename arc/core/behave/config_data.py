@@ -2,7 +2,7 @@ import json
 import os.path
 from copy import deepcopy
 from os import listdir
-from arc.contrib.tools import files
+from arc.contrib.tools import files, excel, csv
 from settings import settings
 
 
@@ -17,19 +17,29 @@ def get_datas(context):
                       if os.path.isfile(os.path.join(os.path.abspath("settings/profiles") + os.sep + env, f))]
 
         for file in list_files:
-            key_name = file[:-5]
+            index = file.rfind('.')
+            key_name = file[:index]
             if key_name in userdata:
                 del userdata[key_name]
 
         assert list_files is not None
 
         for file in list_files:
+            index = file.rfind('.')
             current_files = deepcopy(file)
-            configfile = userdata.get(file[:-5], os.path.abspath("settings/profiles") + os.sep + env + os.sep + file)
+            configfile = userdata.get(file[:index], os.path.abspath("settings/profiles") + os.sep + env + os.sep + file)
             if configfile.endswith(".json"):
-                json_total[file[:-5]] = json.load(open(configfile, encoding="utf8"))
+                json_total[file[:index]] = json.load(open(configfile, encoding="utf8"))
             elif configfile.endswith(".yaml"):
-                json_total[file[:-5]] = files.yaml_to_dict(configfile)
+                json_total[file[:index]] = files.yaml_to_dict(configfile)
+            elif configfile.endswith(".xlsx"):
+                excel_wrapper = excel.ExcelWrapper(configfile)
+                excel_wrapper.set_all_sheets_header(1)
+                json_total[file[:index]] = excel_wrapper.all_sheets_to_dict()
+            elif configfile.endswith(".csv"):
+                csv_wrapper = csv.CSVWrapper(configfile)
+                csv_wrapper.set_sheet_header(1)
+                json_total[file[:index]] = csv_wrapper.current_sheet_to_dict()
             else:
                 pass
         context.config.update_userdata(json_total)

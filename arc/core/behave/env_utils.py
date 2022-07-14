@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 import configparser
+import datetime
+import json
 import logging
 import os
+import traceback
 import warnings
 import sys
 
 from faker import Faker
 from pkg_resources import parse_version
 
+from arc.reports.html.element import Element
+from arc.reports.html.feature import Feature
+from arc.reports.html.htmlGenerator import HtmlGenerator
+from arc.reports.html.utils import BASE_DIR
 from settings import settings
 from arc.contrib.host import host
 from arc.contrib.host.utils import get_host_screenshot
@@ -442,7 +449,7 @@ def run_hooks(context, moment, extra_info=None):
         pass
 
 
-def generate_html_reports(generate):
+def generate_simple_html_reports(generate):
     if generate:
         try:
             html_reporter.make_html_reports()
@@ -450,9 +457,53 @@ def generate_html_reports(generate):
             pass
 
 
+def generate_html_reports():
+    """
+        This function generates the html reports.
+    :return:
+    :rtype:
+    """
+    try:
+        features = []
+        with open(f'{BASE_DIR}/output/reports/talos_report.json') as json_file:
+            json_data = json.load(json_file)
+        for element in json_data.get("features", []):
+            new_feature = Feature(
+                name=element.get("name"),
+                status=element.get("status"),
+                tags=element.get("tags", []),
+                element_type=Element.ELEMENT_FEATURE,
+                location=element.get("location"),
+                description=element.get("description"),
+                total_scenarios=element.get("total_scenarios"),
+                passed_scenarios=element.get("passed_scenarios"),
+                failed_scenarios=element.get("failed_scenarios"),
+                scenarios_passed_percent=element.get("scenarios_passed_percent"),
+                scenarios_failed_percent=element.get("scenarios_failed_percent"),
+                total_steps=element.get("total_steps"),
+                steps_passed=element.get("steps_passed"),
+                steps_failed=element.get("steps_failed"),
+                steps_skipped=element.get("steps_skipped"),
+                steps_passed_percent=element.get("steps_passed_percent"),
+                steps_failed_percent=element.get("steps_failed_percent"),
+                steps_skipped_percent=element.get("steps_skipped_percent"),
+                start_time=element.get("start_time"),
+                end_time=element.get("end_time"),
+                duration=element.get("duration", 0),
+                driver=element.get("driver"),
+                operating_system=element.get("operating_system")
+            )
+            new_feature.add_elements(element.get("elements"))
+            features.append(new_feature)
+
+        HtmlGenerator(features).create_files()
+    except (Exception, ) as e:
+        traceback.print_exc()
+
+
 def generate_screenshot(context, step):
     current_driver = str(context.current_driver).lower()
-    if current_driver != 'api':
+    if current_driver not in ['api', 'backend', 'service']:
         if settings.PYTALOS_REPORTS['generate_screenshot']:
             if current_driver == 'host':
                 program_title = context.pytalos_config.get('Driver', 'window_title')
@@ -471,7 +522,8 @@ def generate_screenshot(context, step):
 def set_step_info_doc(context, screenshot_path, step):
     current_driver = str(context.current_driver).lower()
     if settings.PYTALOS_REPORTS['generate_docx']:
-        if current_driver == 'api' or 'no_driver' in context.runtime.scenario.tags:
+        if current_driver in ['api', 'backend', 'service'] \
+                or 'no_driver' in context.runtime.scenario.tags:
             context.runtime.doc.set_step_info_pre(
                 step,
                 context.extra_info_dict,
@@ -495,3 +547,248 @@ def set_step_info_doc(context, screenshot_path, step):
 
         else:
             context.runtime.doc.set_step_info_pre(context.runtime.step, context.extra_info_dict, screenshot_path)
+
+
+def set_initial_step_data(step):
+    """
+        This function set new initial data to the step passed in order to avoid errors in the html reports generation.
+    :param step:
+    :type step:
+    :return:
+    :rtype:
+    """
+    step.response_content = None
+    step.request = None
+    step.screenshots = []
+    step.api_evidence_extra_json = None
+    step.api_evidence_info = None
+    step.api_evidence_verify = None
+    step.start_time = datetime.datetime.now().timestamp()
+    step.end_time = None
+    return step
+
+
+def set_initial_scenario_data(scenario):
+    """
+        This function set new initial data to the scenario passed in order to avoid errors in the html reports generation.
+    :param scenario:
+    :type scenario:
+    :return:
+    :rtype:
+    """
+    scenario.start_time = datetime.datetime.now().timestamp()
+    scenario.end_time = None
+    scenario.total_steps = 0
+    scenario.steps_passed = 0
+    scenario.steps_failed = 0
+    scenario.steps_skipped = 0
+    scenario.steps_passed_percent = "0"
+    scenario.steps_failed_percent = "0"
+    scenario.steps_skipped_percent = "0"
+    return scenario
+
+
+def set_initial_feature_data(context, feature):
+    """
+        This function set new initial data to the scenario passed in order to avoid errors in the html reports generation.
+    :param context:
+    :type context:
+    :param feature:
+    :type feature:
+    :return:
+    :rtype:
+    """
+    feature.start_time = datetime.datetime.now().timestamp()
+    feature.end_time = None
+    feature.driver = context.current_driver
+    feature.passed_scenarios = 0
+    feature.failed_scenarios = 0
+    feature.total_scenarios = 0
+
+    feature.total_steps = 0
+    feature.steps_passed = 0
+    feature.steps_failed = 0
+    feature.steps_skipped = 0
+
+    feature.passed_scenarios = 0
+    feature.failed_scenarios = 0
+    feature.total_scenarios = 0
+
+    feature.scenarios_passed_percent = "0"
+    feature.scenarios_failed_percent = "0"
+    feature.steps_passed_percent = "0"
+    feature.steps_failed_percent = "0"
+    feature.steps_skipped_percent = "0"
+
+    return feature
+
+
+def add_step_data(context, step, screenshot_path):
+    """
+        This function add data to the step in order to be reflected in the json file.
+    :param context:
+    :type context:
+    :param step:
+    :type step:
+    :param screenshot_path:
+    :type screenshot_path:
+    :return:
+    :rtype:
+    """
+    step.end_time = datetime.datetime.now().timestamp()
+
+    if hasattr(context, "response") and len(context.api_evidence_response) > 0:
+        step.request = dict({
+            "url": context.response.request.url,
+            "headers": context.api_evidence_request_headers,
+            "body": context.api_evidence_request_body
+        })
+        step.response_content = context.api_evidence_response
+    step.api_evidence_extra_json = context.api_evidence_manual_extra_json
+    step.api_evidence_info = context.api_evidence_info
+    step.api_evidence_verify = context.api_evidence_verify
+
+    step.screenshots = [screenshot_path] if screenshot_path is not None else []
+
+    step.screenshots += [text for text in context.extra_info_dict if check_if_string_is_img_route(text)]
+    return step
+
+
+def add_scenario_data(scenario):
+    """
+        This function add data to the scenario in order to be reflected in the json file.
+    :param scenario:
+    :type scenario:
+    :return:
+    :rtype:
+    """
+    scenario.end_time = datetime.datetime.now().timestamp()
+    scenario.total_steps = len(scenario.steps + scenario.background_steps)
+    scenario.steps_passed, scenario.steps_failed, scenario.steps_skipped = count_scenario_passed_steps(scenario)
+
+    scenario.steps_passed_percent = "0" if scenario.steps_passed == 0 else format_decimal(
+        scenario.steps_passed * 100 / scenario.total_steps)
+    scenario.steps_failed_percent = "0" if scenario.steps_failed == 0 else format_decimal(
+        scenario.steps_failed * 100 / scenario.total_steps)
+    scenario.steps_skipped_percent = "0" if scenario.steps_skipped == 0 else format_decimal(
+        scenario.steps_skipped * 100 / scenario.total_steps
+    )
+    return scenario
+
+
+def add_feature_data(feature):
+    """
+        This function add data to the feature in order to be reflected in the json file.
+    :param feature:
+    :type feature:
+    :return:
+    :rtype:
+    """
+    feature.end_time = datetime.datetime.now().timestamp()
+
+    for scenario in feature.scenarios:
+        if scenario.type == "scenario" and scenario.status != "skipped":
+            if scenario.status == "passed":
+                feature.passed_scenarios += 1
+            elif scenario.status == "failed":
+                feature.failed_scenarios += 1
+            feature.total_scenarios += 1
+
+            feature.total_steps += scenario.total_steps
+            feature.steps_passed += scenario.steps_passed
+            feature.steps_failed += scenario.steps_failed
+            feature.steps_skipped += scenario.steps_skipped
+
+        elif scenario.type == "scenario_outline":
+            scenarios_list = [_scenario for _scenario in scenario.scenarios if _scenario.status != "skipped"]
+
+            _passed_scenarios, _failed_scenarios, _total_scenarios = count_feature_passed_scenarios(scenarios_list)
+            feature.passed_scenarios += _passed_scenarios
+            feature.failed_scenarios += _failed_scenarios
+            feature.total_scenarios += _total_scenarios
+
+            for scenario_from_scenario_list in scenarios_list:
+                feature.total_steps += scenario_from_scenario_list.total_steps
+                feature.steps_passed += scenario_from_scenario_list.steps_passed
+                feature.steps_failed += scenario_from_scenario_list.steps_failed
+                feature.steps_skipped += scenario_from_scenario_list.steps_skipped
+
+    feature.scenarios_passed_percent = "0" if feature.passed_scenarios == 0 else format_decimal(
+        feature.passed_scenarios * 100 / feature.total_scenarios)
+    feature.scenarios_failed_percent = "0" if feature.failed_scenarios == 0 else format_decimal(
+        feature.failed_scenarios * 100 / feature.total_scenarios)
+
+    feature.steps_passed_percent = "0" if feature.steps_passed == 0 else format_decimal(
+        feature.steps_passed * 100 / feature.total_steps)
+    feature.steps_failed_percent = "0" if feature.steps_failed == 0 else format_decimal(
+        feature.steps_failed * 100 / feature.total_steps)
+    feature.steps_skipped_percent = "0" if feature.steps_skipped == 0 else format_decimal(
+        feature.steps_skipped * 100 / feature.total_steps)
+
+    return feature
+
+
+def count_scenario_passed_steps(scenario):
+    """
+        This function counts and return the passed, failed and skipped steps given a scenario object
+    :param scenario:
+    :type scenario:
+    :return:
+    :rtype:
+    """
+    passed_steps = 0
+    failed_steps = 0
+    skipped_steps = 0
+    steps = scenario.steps + scenario.background_steps
+
+    for step in steps:
+        if step.status == "passed":
+            passed_steps += 1
+        elif step.status == "failed":
+            failed_steps += 1
+        elif step.status == "skipped":
+            skipped_steps += 1
+
+    return passed_steps, failed_steps, skipped_steps
+
+
+def count_feature_passed_scenarios(scenarios):
+    """
+        This function counts and return the passed, failed and skipped steps given a feature object
+    :param scenarios:
+    :type scenarios:
+    :return:
+    :rtype:
+    """
+    passed_scenarios = 0
+    failed_scenarios = 0
+    total_scenarios = 0
+
+    for scenario in scenarios:
+        if scenario.status == "passed":
+            passed_scenarios += 1
+            total_scenarios += 1
+        else:
+            failed_scenarios += 1
+            total_scenarios += 1
+
+    return passed_scenarios, failed_scenarios, total_scenarios
+
+
+def format_decimal(value):
+    return f"{value:.2f}"
+
+
+def check_if_string_is_img_route(string):
+    """
+        This function check if the string contains the string 'screenshots' and '.png' in order to detect if the string
+        passed is a route to an image.
+        Its return true or false.
+    :param string:
+    :type string:
+    :return:
+    :rtype:
+    """
+    if "screenshots" in string and ".png" in string:
+        return True
+    return False

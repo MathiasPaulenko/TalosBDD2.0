@@ -12,7 +12,7 @@ class CSVWrapper(ExcelWrapper):
     def __init__(self, route_filename=None):
         self.engine = None
         if route_filename is not None:
-
+            route_filename = route_filename.replace(os.sep, '/')
             splitted = route_filename.rsplit('/', 1)
 
             self.route = os.path.join(ROOT_PATH, splitted[0]+'/') if len(splitted) > 1 else ROOT_PATH + '/'

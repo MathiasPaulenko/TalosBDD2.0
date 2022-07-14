@@ -17,6 +17,7 @@ from requests_oauthlib import OAuth1, OAuth2Session
 from urllib3.connection import HTTPConnection
 
 from arc.contrib.tools import files
+from settings import settings
 
 METHOD_GET = "GET"
 METHOD_POST = "POST"
@@ -74,16 +75,15 @@ class ApiObject:
 
         default_proxy = {}
         try:
-            if self.context.pytalos_config.getboolean('Driver', 'proxy'):
-                default_proxy['http'] = 'http://proxyapps.gsnet.corp:80'
-                default_proxy['https'] = 'http://proxyapps.gsnet.corp:80'
-
-            if self.context.pytalos_config.getboolean('Driver', 'proxy') is False:
-                self.proxies = proxies
+            if settings.PYTALOS_RUN['execution_proxy']['enabled']:
+                default_proxy['http'] = settings.PYTALOS_RUN['execution_proxy']['proxy']['http_proxy']
+                default_proxy['https'] = settings.PYTALOS_RUN['execution_proxy']['proxy']['https_proxy']
+                self.proxies = default_proxy
             else:
                 self.proxies = default_proxy
 
         except(Exception,) as ex:
+            print(ex)
             self.proxies = proxies
 
     def send_request(self):

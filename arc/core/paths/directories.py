@@ -63,12 +63,12 @@ def generate_needed_dir(current_driver):
             if not os.path.isdir(dir_helpers):
                 os.mkdir(dir_helpers)
 
-            if str(current_driver).lower() != "api":
+            if str(current_driver).lower() not in ['api', 'backend', 'service']:
                 dir_helpers_page_objects = os.path.join(pytalos_settings.TEST_PATH, 'helpers/page_objects')
                 if not os.path.isdir(dir_helpers_page_objects):
                     os.mkdir(dir_helpers_page_objects)
 
-            if str(current_driver).lower() == "api":
+            if str(current_driver).lower() in ['api', 'backend', 'service']:
                 dir_helpers_api_objects = os.path.join(pytalos_settings.TEST_PATH, 'helpers/api_objects')
                 if not os.path.isdir(dir_helpers_api_objects):
                     os.mkdir(dir_helpers_api_objects)

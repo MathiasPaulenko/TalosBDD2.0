@@ -2,6 +2,7 @@ import os
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
+from openpyxl.utils import get_column_letter
 
 from settings import settings
 from arc.settings import settings as py_settings
@@ -78,7 +79,7 @@ class Catalog:
                 if cell.value:
                     dims[cell.column] = max((dims.get(cell.column, 0), len(str(cell.value))))
         for col, value in dims.items():
-            ws.column_dimensions[col].width = value + 2
+            ws.column_dimensions[get_column_letter(col)].width = value + 2
 
     @staticmethod
     def set_column_custom_width(worksheet, column, width):
