@@ -4,6 +4,7 @@ import datetime
 import re
 
 from arc.reports.csv_formmater import CSVFormatter
+from arc.reports.html.utils import BASE_DIR
 from arc.settings import settings
 
 JSON_PATH = os.path.join(settings.OUTPUT_PATH, 'json/input/')
@@ -30,8 +31,8 @@ class GenerateJson:
         self.step_controller = []
         self.step_dict = {}
 
-    def generate_json_after_scenario(self, scenario, doc_path):
-        self.set_run_part(scenario, doc_path)
+    def generate_json_after_scenario(self, scenario, doc_path, generate_html_report):
+        self.set_run_part(scenario, doc_path, generate_html_report)
         self.finish_json()
 
     def generate_json_after_step(self, step):
@@ -68,7 +69,7 @@ class GenerateJson:
     def set_ts_part(self, scenario):
         self.alm['test-set'] = [self.csv_data[3]]
 
-    def set_run_part(self, scenario, doc_path):
+    def set_run_part(self, scenario, doc_path, generate_html_report):
         if str(scenario.status) == 'Status.passed':
             result = "Passed"
         elif str(scenario.status) == "Status.failed":
@@ -81,8 +82,11 @@ class GenerateJson:
             "run-exec-time": str(self.cd.hour) + ":" + str(self.cd.minute) + ":" + str(self.cd.second),
             "run-status": result,
             "run-duration": str(round(scenario.duration, 2)),
-            "run-attach-1": doc_path.__str__()
+            "run-attach-1": doc_path.__str__(),
         })
+
+        if generate_html_report:
+            self.alm['run'][0]['run-attach-2'] = f"{BASE_DIR}/output/reports/html/scenario_{scenario.name}.html"
 
     def set_step(self, step):
         date_time = datetime.datetime.now()

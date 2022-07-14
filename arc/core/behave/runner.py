@@ -8,6 +8,7 @@ from behave.runner import ModelRunner, Runner
 from behave.runner_util import PathManager
 
 from arc.core.behave.configuration import BehaveConfiguration, set_report_configuration
+from arc.environment import after_execution, before_execution
 from arc.misc import title
 from arc.core import constants
 try:
@@ -117,11 +118,13 @@ def add_extra_args(args):
 
 
 def main(args=None):
+    before_execution()
     set_report_configuration(settings)
     args = add_extra_args(args)
     config = BehaveConfiguration(command_args=args, run_settings=settings)
     print('Started at:', datetime.datetime.now())
     title()
     finish_code = run_behave(config, CustomRunner)
+    after_execution()
     print('Ended at:', datetime.datetime.now())
     return finish_code

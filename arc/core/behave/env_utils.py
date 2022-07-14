@@ -429,7 +429,9 @@ def config_faker():
 
 def run_hooks(context, moment, extra_info=None):
     try:
-        if moment == 'before_all':
+        if moment == 'before_execution':
+            hooks.before_execution()
+        elif moment == 'before_all':
             hooks.before_all(context)
         elif moment == 'after_all':
             hooks.after_all(context)
@@ -445,6 +447,8 @@ def run_hooks(context, moment, extra_info=None):
             hooks.before_step(context, extra_info)
         elif moment == 'after_step':
             hooks.after_step(context, extra_info)
+        elif moment == 'after_execution':
+            hooks.after_execution()
     except (Exception,):
         pass
 

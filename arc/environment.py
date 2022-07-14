@@ -21,7 +21,8 @@ from arc.core.behave.env_utils import (
     enable_doc_report,
     enable_host, close_host, set_doc_info_and_end, set_doc_note,
     set_alm_custom_variable, generate_screenshot, set_initial_scenario_data, set_initial_feature_data,
-    add_scenario_data, add_feature_data, set_initial_step_data, add_step_data, generate_simple_html_reports
+    add_scenario_data, add_feature_data, set_initial_step_data, add_step_data, generate_simple_html_reports,
+    generate_html_reports
 )
 from arc.core.behave.environment import (
     before_all as core_before_all,
@@ -35,6 +36,10 @@ from arc.core.paths.directories import enable_delete_old_reports, generate_neede
 from arc.core.paths.drivers import add_drivers_directory_to_path
 from arc.reports.catalog import excel_catalog
 from arc.contrib.utilities import Utils
+
+
+def before_execution():
+    run_hooks(context=None, moment='before_execution')
 
 
 def before_all(context):
@@ -121,7 +126,9 @@ def after_scenario(context, scenario):
     doc_path = set_doc_info_and_end(context, scenario)
 
     if settings.PYTALOS_ALM['generate_json']:
-        context.runtime.alm_json.generate_json_after_scenario(scenario, doc_path)
+        context.runtime.alm_json.generate_json_after_scenario(
+            scenario, doc_path, generate_html_report=settings.PYTALOS_REPORTS['generate_html']
+        )
 
     if settings.PYTALOS_REPORTS['generate_txt']:
         context.runtime.txt_log.write_scenario_info(scenario)
@@ -213,3 +220,10 @@ def after_step(context, step):
 
     # run hooks
     run_hooks(context, 'after_step')
+
+
+def after_execution():
+    if settings.PYTALOS_REPORTS.get('generate_html', False):
+        generate_html_reports()
+
+    run_hooks(context=None, moment='after_execution')

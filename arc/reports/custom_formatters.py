@@ -6,8 +6,6 @@ import platform
 from behave.formatter.base import Formatter
 from behave.model_core import Status
 
-from arc.core.behave.env_utils import generate_html_reports
-from settings import settings
 from urllib3.packages import six
 
 
@@ -245,9 +243,6 @@ class CustomJSONFormatter(Formatter):
             self.write_json_header()
         self.write_json_footer()
         self.close_stream()
-
-        if settings.PYTALOS_REPORTS.get('generate_html', False):
-            generate_html_reports()
 
     # -- JSON-DATA COLLECTION:
     def add_feature_element(self, element):

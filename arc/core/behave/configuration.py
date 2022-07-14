@@ -308,6 +308,10 @@ talos_options = [
     (("-env", "--environment"),
      dict(action="append", dest="environment",
           help="Provide the name of the environment for the profile data.")),
+
+    (("--no-alm",),
+     dict(action="store_false", dest="pyalm",
+          help="Disable all ALM configurations")),
 ]
 
 
@@ -401,6 +405,7 @@ class BehaveConfiguration:
         junit=False,
         stage=None,
         userdata={},
+        pyalm=True,
         # -- SPECIAL:
         default_format="pretty",  # -- Used when no formatters are configured.
         default_tags="",  # -- Used when no tags are defined.
@@ -441,6 +446,7 @@ class BehaveConfiguration:
         self.scope = None
         self.steps_catalog = None
         self.userdata = None
+        self.pyalm = None
         self.wip = None
         self.proxy = None
         self.environment = None
@@ -540,6 +546,14 @@ class BehaveConfiguration:
 
         if self.environment:
             run_settings.PYTALOS_PROFILES['environment'] = self.environment[0]
+
+        if not self.pyalm:
+            run_settings.PYTALOS_ALM = {
+                'post_to_alm': False,
+                'generate_json': False,
+                'match_alm_execution': False,
+                'alm3_properties': False,
+            }
 
     def setup_outputs(self, args_outfiles=None):
         if self.outputs:

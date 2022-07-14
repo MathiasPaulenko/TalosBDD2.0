@@ -1,3 +1,10 @@
+def before_execution():
+    """
+        Clean method that will be executed before execution is finished
+    """
+    pass
+
+
 def before_all(context):
     """Initialization method that will be executed before the test execution
 
@@ -58,3 +65,10 @@ def after_step(context, step):
     :param step:
     :param context: behave context
     # """
+
+
+def after_execution():
+    """
+        Clean method that will be executed after execution is finished
+    """
+    pass
